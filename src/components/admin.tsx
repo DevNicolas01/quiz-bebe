@@ -1,94 +1,98 @@
-import { useEffect, useState } from "react";
-import { getAnalytics, clearAnalytics } from "../lib/analytics";
-
-type EventItem = {
-  event: string;
-  time: number;
-};
+import { useEffect, useMemo, useState } from "react";
+import { getAnalytics, clearAnalytics, EventItem } from "../lib/analytics";
 
 export default function Admin() {
   const [data, setData] = useState<EventItem[]>([]);
 
   useEffect(() => {
-    const events = getAnalytics();
-    setData(events);
+    setData(getAnalytics());
   }, []);
 
-  const countEvent = (name: string) =>
-    data.filter((e) => e.event === name).length;
+  const sessions = useMemo(() => {
+    const map = new Map<string, EventItem[]>();
 
-  // pega eventos por padrão (step_1_view etc)
-  const countLike = (prefix: string) =>
-    data.filter((e) => e.event.startsWith(prefix)).length;
+    data.forEach((e) => {
+      if (!map.has(e.sessionId)) map.set(e.sessionId, []);
+      map.get(e.sessionId)!.push(e);
+    });
+
+    return Array.from(map.values());
+  }, [data]);
+
+  const totalSessions = sessions.length;
+
+  const quizSteps = data.filter((d) => d.event.includes("step_"));
+  const answers = data.filter((d) => d.event.includes("answer"));
+
+  const avgTime = useMemo(() => {
+    if (sessions.length === 0) return 0;
+
+    const times = sessions.map((s) => {
+      const start = s.find((e) => e.event.includes("view"))?.time || s[0].time;
+      const end = s[s.length - 1].time;
+      return (end - start) / 1000;
+    });
+
+    return (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1);
+  }, [sessions]);
+
+  const answerCount = useMemo(() => {
+    const map: Record<string, number> = {};
+
+    answers.forEach((a) => {
+      const key = a.event;
+      map[key] = (map[key] || 0) + 1;
+    });
+
+    return map;
+  }, [answers]);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="p-6 max-w-3xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold">📊 Admin Analytics</h1>
 
-        <h1 className="text-2xl font-bold mb-6">
-          📊 Painel de Analytics
-        </h1>
-
-        {/* RESUMO */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-
-          <div className="bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-500">Quiz iniciado</p>
-            <p className="text-2xl font-bold">{countEvent("quiz_start")}</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-500">Resultado</p>
-            <p className="text-2xl font-bold">{countEvent("result_view")}</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-500">Oferta vista</p>
-            <p className="text-2xl font-bold">{countEvent("offer_view")}</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-xl shadow">
-            <p className="text-sm text-gray-500">Checkout click</p>
-            <p className="text-2xl font-bold">{countEvent("checkout_click_basic") + countEvent("checkout_click_premium")}</p>
-          </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white p-4 rounded-xl shadow">
+          <p>Total sessões</p>
+          <h2 className="text-2xl font-bold">{totalSessions}</h2>
         </div>
 
-        {/* FUNIL */}
-        <div className="bg-white p-5 rounded-xl shadow mb-8">
-          <h2 className="font-semibold mb-4">📈 Funil do Quiz</h2>
-
-          <ul className="space-y-2 text-sm">
-            <li>Step 1: {countLike("step_1_view")}</li>
-            <li>Step 2: {countLike("step_2_view")}</li>
-            <li>Step 3: {countLike("step_3_view")}</li>
-            <li>Step 4: {countLike("step_4_view")}</li>
-          </ul>
+        <div className="bg-white p-4 rounded-xl shadow">
+          <p>Tempo médio no quiz</p>
+          <h2 className="text-2xl font-bold">{avgTime}s</h2>
         </div>
-
-        {/* LOG RAW */}
-        <div className="bg-white p-5 rounded-xl shadow mb-8">
-          <h2 className="font-semibold mb-4">🧾 Logs brutos</h2>
-
-          <div className="max-h-80 overflow-auto text-xs space-y-1">
-            {data.map((e, i) => (
-              <div key={i} className="border-b py-1">
-                {e.event} — {new Date(e.time).toLocaleString()}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* RESET */}
-        <button
-          onClick={() => {
-            clearAnalytics();
-            setData([]);
-          }}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg"
-        >
-          Limpar dados
-        </button>
       </div>
+
+      <div className="bg-white p-4 rounded-xl shadow">
+        <h2 className="font-bold mb-2">📌 Respostas mais comuns</h2>
+
+        <div className="space-y-1 text-sm">
+          {Object.entries(answerCount).map(([key, value]) => (
+            <div key={key} className="flex justify-between border-b py-1">
+              <span>{key}</span>
+              <b>{value}</b>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white p-4 rounded-xl shadow">
+        <h2 className="font-bold mb-2">📉 Eventos do funil</h2>
+
+        <pre className="text-xs overflow-auto max-h-64">
+          {JSON.stringify(data.slice(-20), null, 2)}
+        </pre>
+      </div>
+
+      <button
+        onClick={() => {
+          clearAnalytics();
+          window.location.reload();
+        }}
+        className="bg-red-500 text-white px-4 py-2 rounded"
+      >
+        Limpar dados
+      </button>
     </div>
   );
 }

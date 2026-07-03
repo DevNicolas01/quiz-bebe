@@ -16,14 +16,14 @@ export interface QuizAnswers {
 type Stage = "quiz" | "loading" | "result" | "offer";
 
 export default function App() {
-  // ADMIN ROUTE SIMPLES
-  if (window.location.pathname === "/admin") {
-    return <Admin />;
-  }
-
   const [stage, setStage] = useState<Stage>("quiz");
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
+
+  // 🔥 ADMIN ROUTE SIMPLES
+  if (window.location.pathname === "/admin") {
+    return <Admin />;
+  }
 
   const currentQuestion = quizQuestions[stepIndex];
 
