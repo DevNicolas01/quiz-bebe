@@ -219,6 +219,7 @@ function QuizPage() {
           </AnimatePresence>
         </div>
       </main>
+      </div>
     </div>
   );
 }
