@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { getAnalytics, clearAnalytics, EventItem } from "../lib/analytics";
 
-export default function Admin() {
+export default function AdminDashboard() {
   const [data, setData] = useState<EventItem[]>([]);
 
   useEffect(() => {
     setData(getAnalytics());
   }, []);
 
+  // =========================
+  // SESSÕES
+  // =========================
   const sessions = useMemo(() => {
     const map = new Map<string, EventItem[]>();
 
@@ -16,69 +19,129 @@ export default function Admin() {
       map.get(e.sessionId)!.push(e);
     });
 
-    return Array.from(map.values());
+    const arr = Array.from(map.values());
+
+    // ordenar por tempo
+    arr.forEach((s) => s.sort((a, b) => a.timestamp - b.timestamp));
+
+    return arr;
   }, [data]);
 
   const totalSessions = sessions.length;
 
-  const quizSteps = data.filter((d) => d.event.includes("step_"));
-  const answers = data.filter((d) => d.event.includes("answer"));
-
+  // =========================
+  // TEMPO MÉDIO
+  // =========================
   const avgTime = useMemo(() => {
-    if (sessions.length === 0) return 0;
+    if (!sessions.length) return 0;
 
     const times = sessions.map((s) => {
-      const start = s.find((e) => e.event.includes("view"))?.time || s[0].time;
-      const end = s[s.length - 1].time;
+      const start = s[0]?.timestamp;
+      const end = s[s.length - 1]?.timestamp;
+
+      if (!start || !end) return 0;
+
       return (end - start) / 1000;
     });
 
-    return (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1);
+    const valid = times.filter((t) => t > 0);
+
+    if (!valid.length) return 0;
+
+    return (valid.reduce((a, b) => a + b, 0) / valid.length).toFixed(1);
   }, [sessions]);
 
-  const answerCount = useMemo(() => {
-    const map: Record<string, number> = {};
+  // =========================
+  // FUNIL
+  // =========================
+  const funnel = useMemo(() => {
+    return {
+      views: data.filter((d) => d.event === "quiz_step_view").length,
+      answers: data.filter((d) => d.event === "quiz_answer").length,
+      result: data.filter((d) => d.event === "result_view").length,
+      offer: data.filter((d) => d.event === "offer_view").length,
+    };
+  }, [data]);
 
-    answers.forEach((a) => {
-      const key = a.event;
-      map[key] = (map[key] || 0) + 1;
+  // =========================
+  // DROP OFF POR STEP
+  // =========================
+  const dropoff = useMemo(() => {
+    const map: Record<number, number> = {};
+
+    data.forEach((e) => {
+      if (typeof e.step === "number") {
+        map[e.step] = (map[e.step] || 0) + 1;
+      }
     });
 
     return map;
-  }, [answers]);
+  }, [data]);
+
+  // =========================
+  // RESPOSTAS
+  // =========================
+  const answers = useMemo(() => {
+    const map: Record<string, number> = {};
+
+    data.forEach((e) => {
+      if (e.event === "quiz_answer") {
+        const val = e.value || "unknown";
+        map[val] = (map[val] || 0) + 1;
+      }
+    });
+
+    return map;
+  }, [data]);
+
+  const conversion = totalSessions
+    ? ((funnel.offer / totalSessions) * 100).toFixed(1)
+    : "0";
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">📊 Admin Analytics</h1>
+    <div className="p-6 max-w-4xl mx-auto space-y-6">
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white p-4 rounded-xl shadow">
-          <p>Total sessões</p>
-          <h2 className="text-2xl font-bold">{totalSessions}</h2>
-        </div>
+      <h1 className="text-2xl font-bold">📊 Dashboard do Quiz</h1>
 
-        <div className="bg-white p-4 rounded-xl shadow">
-          <p>Tempo médio no quiz</p>
-          <h2 className="text-2xl font-bold">{avgTime}s</h2>
-        </div>
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card label="Sessões" value={totalSessions} />
+        <Card label="Tempo médio" value={`${avgTime}s`} />
+        <Card label="Views" value={funnel.views} />
+        <Card label="Conversão" value={`${conversion}%`} />
       </div>
 
+      {/* FUNIL */}
       <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold mb-2">📌 Respostas mais comuns</h2>
+        <h2 className="font-bold mb-3">📉 Funil</h2>
 
-        <div className="space-y-1 text-sm">
-          {Object.entries(answerCount).map(([key, value]) => (
-            <div key={key} className="flex justify-between border-b py-1">
-              <span>{key}</span>
-              <b>{value}</b>
-            </div>
-          ))}
-        </div>
+        <Row label="Views" value={funnel.views} />
+        <Row label="Answers" value={funnel.answers} />
+        <Row label="Result" value={funnel.result} />
+        <Row label="Offer" value={funnel.offer} />
       </div>
 
+      {/* DROP OFF */}
       <div className="bg-white p-4 rounded-xl shadow">
-        <h2 className="font-bold mb-2">📉 Eventos do funil</h2>
+        <h2 className="font-bold mb-3">📌 Abandono por etapa</h2>
 
+        {Object.entries(dropoff).map(([step, count]) => (
+          <Row key={step} label={`Step ${step}`} value={count} />
+        ))}
+      </div>
+
+      {/* RESPOSTAS */}
+      <div className="bg-white p-4 rounded-xl shadow">
+        <h2 className="font-bold mb-3">🧠 Respostas mais comuns</h2>
+
+        {Object.entries(answers).map(([val, count]) => (
+          <Row key={val} label={val} value={count} />
+        ))}
+      </div>
+
+      {/* RAW */}
+      <div className="bg-white p-4 rounded-xl shadow">
+        <h2 className="font-bold mb-2">🧾 Últimos eventos</h2>
         <pre className="text-xs overflow-auto max-h-64">
           {JSON.stringify(data.slice(-20), null, 2)}
         </pre>
@@ -93,6 +156,26 @@ export default function Admin() {
       >
         Limpar dados
       </button>
+    </div>
+  );
+}
+
+// =========================
+
+function Card({ label, value }: any) {
+  return (
+    <div className="bg-white p-4 rounded-xl shadow">
+      <p className="text-sm text-gray-500">{label}</p>
+      <h2 className="text-xl font-bold">{value}</h2>
+    </div>
+  );
+}
+
+function Row({ label, value }: any) {
+  return (
+    <div className="flex justify-between border-b py-1 text-sm">
+      <span>{label}</span>
+      <b>{value}</b>
     </div>
   );
 }
