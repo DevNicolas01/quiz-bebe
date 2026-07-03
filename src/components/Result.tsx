@@ -1,9 +1,4 @@
-import {
-  idadeLabels,
-  acordarLabels,
-  ondeLabels,
-  desafioLabels,
-} from "../data/quiz";
+import { idadeLabels, acordarLabels, ondeLabels, desafioLabels } from "../data/quiz";
 
 interface QuizAnswers {
   idade?: string;
@@ -40,7 +35,6 @@ export default function Result({ answers, onContinue }: ResultProps) {
   return (
     <div className="max-w-lg mx-auto px-6 py-14 animate-in">
       <div className="bg-white rounded-3xl border border-lav-100 shadow-xl shadow-lav-100/50 p-8">
-
         <span className="inline-flex items-center gap-1.5 bg-lav-50 text-lav-600 text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
           ✨ Diagnóstico pronto
         </span>
@@ -49,17 +43,17 @@ export default function Result({ answers, onContinue }: ResultProps) {
           Identificamos o padrão de sono do bebê
         </h1>
 
-        {/* 🧠 IMAGEM NOVA */}
         <div className="mb-6 rounded-2xl overflow-hidden border border-lav-100">
           <img
-            src="/img/bebe.png"
+            src="/bebe.png"
             alt="Bebê dormindo tranquilamente"
             className="w-full h-48 object-cover"
           />
         </div>
 
         <p className="text-lav-500 text-sm leading-relaxed mb-6">
-          Com base nas suas respostas, montamos um plano personalizado para noites mais tranquilas — em até 7 dias.
+          Com base nas suas respostas, montamos um plano personalizado para noites mais tranquilas —
+          em até 7 dias.
         </p>
 
         {/* RESUMO */}
@@ -79,10 +73,7 @@ export default function Result({ answers, onContinue }: ResultProps) {
             "Rotina noturna personalizada",
             "Passo a passo para reduzir despertares",
           ].map((item) => (
-            <div
-              key={item}
-              className="flex items-center gap-2.5 text-sm text-lav-700"
-            >
+            <div key={item} className="flex items-center gap-2.5 text-sm text-lav-700">
               <span className="w-5 h-5 rounded-full bg-lav-100 text-lav-600 flex items-center justify-center flex-shrink-0 text-xs">
                 ✓
               </span>
@@ -99,9 +90,7 @@ export default function Result({ answers, onContinue }: ResultProps) {
           Ver meu plano personalizado →
         </button>
 
-        <p className="text-center text-lav-300 text-xs mt-3">
-          Leva menos de 1 minuto para ver
-        </p>
+        <p className="text-center text-lav-300 text-xs mt-3">Leva menos de 1 minuto para ver</p>
       </div>
     </div>
   );

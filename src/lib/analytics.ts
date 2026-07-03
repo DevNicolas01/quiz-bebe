@@ -2,11 +2,16 @@ export type EventName =
   | "quiz_start"
   | "quiz_step_view"
   | "quiz_answer"
+  | "quiz_abandon"
   | "result_view"
-  | "offer_view";
+  | "offer_view"
+  | "video_play"
+  | "plan_selected"
+  | "checkout_click"
+  | "purchase_complete";
 
 export type EventItem = {
-  event: string;
+  event: EventName;
   step?: number;
   value?: string;
   questionId?: string;
@@ -16,7 +21,7 @@ export type EventItem = {
 
 const STORAGE_KEY = "analytics";
 
-function getSessionId() {
+function getSessionId(): string {
   let id = localStorage.getItem("session_id");
 
   if (!id) {
@@ -28,33 +33,55 @@ function getSessionId() {
 }
 
 export function track(
-  event: string,
+  event: EventName,
   data?: {
     step?: number;
     value?: string;
     questionId?: string;
   }
 ) {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  const arr: EventItem[] = raw ? JSON.parse(raw) : [];
-
-  arr.push({
+  const item: EventItem = {
     event,
     step: data?.step,
     value: data?.value,
     questionId: data?.questionId,
     timestamp: Date.now(),
     sessionId: getSessionId(),
-  });
+  };
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+  try {
+    // salva local (fallback)
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const arr: EventItem[] = raw ? JSON.parse(raw) : [];
+
+    arr.push(item);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(arr));
+
+    fetch("/api/track", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(item),
+    }).catch(() => {
+      // não quebra o app se falhar
+    });
+  } catch (err) {
+    console.error("Analytics error:", err);
+  }
 }
 
+/**
+ * PUXA DADOS (ADMIN PANEL)
+ */
 export function getAnalytics(): EventItem[] {
   const raw = localStorage.getItem(STORAGE_KEY);
   return raw ? JSON.parse(raw) : [];
 }
 
+/**
+ * LIMPAR DADOS (TESTE / DEBUG)
+ */
 export function clearAnalytics() {
   localStorage.removeItem(STORAGE_KEY);
 }
