@@ -42,6 +42,7 @@ const steps: Step[] = [
     key: "wakeUps",
     question: "Quantas vezes o bebê acorda por noite?",
     options: [
+      { label: "Nenhuma vez", value: "0" },
       { label: "1 vez", value: "1" },
       { label: "2 vezes", value: "2" },
       { label: "3 vezes", value: "3" },
