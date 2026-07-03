@@ -42,6 +42,7 @@ const steps: Step[] = [
     key: "wakeUps",
     question: "Quantas vezes o bebê acorda por noite?",
     options: [
+      { label: "Nenhuma vez", value: "0" },
       { label: "1 vez", value: "1" },
       { label: "2 vezes", value: "2" },
       { label: "3 vezes", value: "3" },
@@ -99,9 +100,33 @@ function QuizPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="relative min-h-screen bg-background flex flex-col overflow-hidden">
+      {/* Pulsating background blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <motion.div
+          aria-hidden
+          className="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-primary/25 blur-3xl"
+          animate={{ scale: [1, 1.25, 1], opacity: [0.45, 0.7, 0.45] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-accent blur-3xl"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.2 }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-primary/20 blur-3xl"
+          animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.65, 0.4] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 2.4 }}
+        />
+      </div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
       {/* Progress */}
       <div className="sticky top-0 z-10 bg-background/85 backdrop-blur-md">
+
         <div className="mx-auto max-w-xl px-5 pt-6 pb-4">
           <div className="flex items-center justify-between mb-3">
             <button
@@ -194,6 +219,7 @@ function QuizPage() {
           </AnimatePresence>
         </div>
       </main>
+      </div>
     </div>
   );
 }
