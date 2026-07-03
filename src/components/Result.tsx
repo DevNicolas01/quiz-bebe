@@ -52,7 +52,7 @@ export default function Result({ answers, onContinue }: ResultProps) {
         {/* 🧠 IMAGEM NOVA */}
         <div className="mb-6 rounded-2xl overflow-hidden border border-lav-100">
           <img
-            src="./public/img/bebe-dormindo.jpg"
+            src="./img/bebe-dormindo.jpg"
             alt="Bebê dormindo tranquilamente"
             className="w-full h-48 object-cover"
           />

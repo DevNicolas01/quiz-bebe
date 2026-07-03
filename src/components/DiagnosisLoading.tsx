@@ -36,7 +36,6 @@ export default function DiagnosisLoading({ onDone }: { onDone: () => void }) {
     <div className="min-h-screen bg-gradient-to-br from-[#E0F2FE] via-[#F8FAFC] to-[#EDE9FE] flex items-center justify-center">
       <div className="max-w-xl mx-auto px-6 text-center animate-in">
 
-        {/* LOADING VISUAL MAIS “PREMIUM” */}
         <div className="w-20 h-20 mx-auto mb-8 relative">
           <div className="absolute inset-0 rounded-full border-4 border-sky-100" />
           <div className="absolute inset-0 rounded-full border-4 border-sky-500 border-t-transparent animate-spin" />
