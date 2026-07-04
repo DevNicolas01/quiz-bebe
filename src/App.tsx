@@ -4,6 +4,7 @@ import QuizStep from "./components/QuizStep";
 import DiagnosisLoading from "./components/DiagnosisLoading";
 import Result from "./components/Result";
 import Offer from "./components/Offer";
+import Admin from "./components/admin";
 
 export interface QuizAnswers {
   idade?: string;
@@ -26,6 +27,11 @@ export default function App() {
       window.fbq("track", "Lead");
     }
   }, [stage]);
+
+  // Rota simples de admin — fica ANTES do return, junto com a lógica do componente
+  if (window.location.pathname === "/admin") {
+    return <Admin />;
+  }
 
   function handleSelect(optionId: string) {
     setAnswers((prev) => ({
