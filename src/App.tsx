@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { quizQuestions } from "./data/quiz";
 import QuizStep from "./components/QuizStep";
 import DiagnosisLoading from "./components/DiagnosisLoading";
 import Result from "./components/Result";
 import Offer from "./components/Offer";
-import Admin from "./components/admin";
 
 export interface QuizAnswers {
   idade?: string;
@@ -20,12 +19,13 @@ export default function App() {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
 
-  // 🔥 ADMIN ROUTE SIMPLES
-  if (window.location.pathname === "/admin") {
-    return <Admin />;
-  }
-
   const currentQuestion = quizQuestions[stepIndex];
+
+  useEffect(() => {
+    if (stage === "offer" && window.fbq) {
+      window.fbq("track", "Lead");
+    }
+  }, [stage]);
 
   function handleSelect(optionId: string) {
     setAnswers((prev) => ({
@@ -61,10 +61,7 @@ export default function App() {
       )}
 
       {stage === "result" && (
-        <Result
-          answers={answers}
-          onContinue={() => setStage("offer")}
-        />
+        <Result answers={answers} onContinue={() => setStage("offer")} />
       )}
 
       {stage === "offer" && <Offer />}
