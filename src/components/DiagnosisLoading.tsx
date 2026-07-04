@@ -7,6 +7,7 @@ const steps = [
   "Montando seu plano personalizado de ajuste de sono...",
 ];
 
+
 export default function DiagnosisLoading({ onDone }: { onDone: () => void }) {
   const [stepIndex, setStepIndex] = useState(0);
 
