@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useCountdown } from "../hooks/useCountdown";
 
+const CHECKOUT_URL = "https://lastlink.com/p/C7C834B7E/checkout-payment/";
+
 const benefits = [
   { icon: "🌙", text: "Noites mais tranquilas para você e seu bebê" },
   { icon: "💜", text: "Método gentil (sem deixar o bebê chorando sozinho)" },
@@ -48,8 +50,8 @@ export default function Offer() {
     return () => clearInterval(interval);
   }, []);
 
-  function handleCheckout(url: string) {
-    window.location.href = url;
+  function handleCheckout() {
+    window.location.href = CHECKOUT_URL;
   }
 
   function scrollToPlans() {
@@ -272,7 +274,7 @@ export default function Offer() {
               <div
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleCheckout("https://seu-checkout-aqui.com/completo");
+                  handleCheckout();
                 }}
                 className="w-full text-center bg-gradient-to-r from-lav-500 to-lav-600 hover:from-lav-600 hover:to-lav-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-lav-300/40"
               >
@@ -319,7 +321,7 @@ export default function Offer() {
               <div
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleCheckout("https://seu-checkout-aqui.com/essencial");
+                  handleCheckout();
                 }}
                 className="w-full text-center bg-lav-50 hover:bg-lav-100 text-lav-700 font-semibold py-3.5 rounded-xl transition-colors"
               >
