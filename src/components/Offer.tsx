@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useCountdown } from "../hooks/useCountdown";
 
-const CHECKOUT_URL = "https://lastlink.com/p/C0869187A/checkout-payment/";
+const CHECKOUT_24 = "https://lastlink.com/p/C7C834B7E/checkout-payment/";
+const CHECKOUT_9 = "https://lastlink.com/p/C0869187A/checkout-payment/";
 
 const benefits = [
   { icon: "🌙", text: "Noites mais tranquilas para você e seu bebê" },
@@ -50,10 +51,13 @@ export default function Offer() {
     return () => clearInterval(interval);
   }, []);
 
-  function handleCheckout() {
-    window.location.href = CHECKOUT_URL;
+function handleCheckout(plan: "completo" | "essencial") {
+  if (plan === "completo") {
+    window.location.href = CHECKOUT_24;
+  } else {
+    window.location.href = CHECKOUT_9;
   }
-
+}
   function scrollToPlans() {
     const el = document.getElementById("plans");
     if (el) el.scrollIntoView({ behavior: "smooth" });
@@ -272,10 +276,10 @@ export default function Offer() {
               </div>
 
               <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCheckout();
-                }}
+  onClick={(e) => {
+    e.stopPropagation();
+    handleCheckout("completo");
+  }}
                 className="w-full text-center bg-gradient-to-r from-lav-500 to-lav-600 hover:from-lav-600 hover:to-lav-700 text-white font-semibold py-3.5 rounded-xl transition-all shadow-lg shadow-lav-300/40"
               >
                 Quero o Plano Completo →
@@ -319,10 +323,10 @@ export default function Offer() {
               <p className="text-3xl font-display font-bold text-lav-900 mb-4">R$ 9,99</p>
 
               <div
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCheckout();
-                }}
+  onClick={(e) => {
+    e.stopPropagation();
+    handleCheckout("essencial");
+  }}
                 className="w-full text-center bg-lav-50 hover:bg-lav-100 text-lav-700 font-semibold py-3.5 rounded-xl transition-colors"
               >
                 Começar com o essencial
