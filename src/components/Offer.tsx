@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useCountdown } from "../hooks/useCountdown";
 
-const CHECKOUT_URL = "https://lastlink.com/p/C7C834B7E/checkout-payment/";
+const CHECKOUT_URL = "https://lastlink.com/p/C0869187A/checkout-payment/";
 
 const benefits = [
   { icon: "🌙", text: "Noites mais tranquilas para você e seu bebê" },
@@ -282,7 +282,7 @@ export default function Offer() {
               </div>
             </button>
 
-            {/* PLANO ESSENCIAL */}
+            {}
             <button
               onClick={() => setSelectedPlan("essencial")}
               className={`w-full text-left rounded-3xl p-6 transition-all ${
