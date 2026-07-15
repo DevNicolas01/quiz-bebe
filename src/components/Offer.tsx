@@ -45,13 +45,23 @@ export default function Offer() {
   const timeLeft = useCountdown(15);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prev) => (prev + 1) % carouselImages.length);
-    }, 3500);
-    return () => clearInterval(interval);
+    if (typeof window !== "undefined" && window.fbq) {
+      window.fbq("track", "InitiateCheckout");
+    }
   }, []);
 
 function handleCheckout(plan: "completo" | "essencial") {
+
+  if (typeof window !== "undefined" && window.fbq) {
+
+    window.fbq("track", "Purchase", {
+      value: plan === "completo" ? 24.99 : 9.99,
+      currency: "BRL",
+    });
+
+  }
+
+
   if (plan === "completo") {
     window.location.href = CHECKOUT_24;
   } else {
