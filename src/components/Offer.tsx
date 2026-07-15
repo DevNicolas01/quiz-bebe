@@ -52,15 +52,19 @@ export default function Offer() {
 
 function handleCheckout(plan: "completo" | "essencial") {
 
+  const value = plan === "completo" ? 24.99 : 9.99;
+
+  // Evento Meta Pixel
   if (typeof window !== "undefined" && window.fbq) {
-
-    window.fbq("track", "Purchase", {
-      value: plan === "completo" ? 24.99 : 9.99,
-      currency: "BRL",
-    });
-
+    window.fbq(
+      "track",
+      "InitiateCheckout",
+      {
+        value,
+        currency: "BRL",
+      }
+    );
   }
-
 
   if (plan === "completo") {
     window.location.href = CHECKOUT_24;
